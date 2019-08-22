@@ -1,0 +1,157 @@
+---
+swagger: "2.0"
+info:
+  description: Music API with Playlists
+  version: 0.3.0
+  title: Music API
+host: api.muzicplayz.com
+basePath: /v3
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /playlist:
+    get:
+      description: Returns one or more playlists
+      operationId: getPlaylist
+      parameters:
+      - name: limit
+        in: query
+        description: Number of playlists to return
+        required: false
+        type: integer
+      - name: offset
+        in: query
+        description: Number of playlists to skip
+        required: false
+        type: integer
+      - name: search
+        in: query
+        description: Search Term
+        required: false
+        type: string
+      responses:
+        200:
+          description: Successful response
+      security:
+      - basicAuth: []
+    post:
+      description: Create New Playlist
+      operationId: createNewPlaylist
+      parameters:
+      - in: body
+        name: newPlaylist
+        required: true
+        schema:
+          $ref: '#/definitions/newPlaylist'
+      responses:
+        200:
+          description: Successful responses
+        410:
+          description: Error
+          schema:
+            $ref: '#/definitions/error'
+  /playlist/{playlist-id}:
+    get:
+      description: Returns a playlist
+      operationId: getPlaylistByPath
+      parameters:
+      - name: playlist-id
+        in: path
+        description: ID of the playlist to return
+        required: true
+        type: string
+      responses:
+        200:
+          description: Successful responses
+          schema:
+            $ref: '#/definitions/Playlist'
+    delete:
+      description: Deletes a playlist
+      operationId: deletePlaylist
+      parameters:
+      - name: playlist-id
+        in: path
+        description: Id of the playlist to delete
+        required: true
+        type: string
+      responses:
+        200:
+          description: Successful response
+  /playlists/{playlist-id}/image:
+    get:
+      description: Returns a generated image for the playlist
+      operationId: getImage
+      produces:
+      - image/png
+      parameters:
+      - name: playlist-id
+        in: path
+        description: ID of the playlist to generate the image for
+        required: true
+        type: string
+      responses:
+        200:
+          description: Successful responses
+          schema:
+            type: file
+securityDefinitions:
+  basicAuth:
+    type: basic
+definitions:
+  newPlaylist:
+    properties:
+      name:
+        type: string
+        description: Name of the Playlist
+      songIds:
+        type: array
+        description: IDs of the songs in the playlist
+        items:
+          type: integer
+    description: New Playlist
+  Playlist:
+    properties:
+      id:
+        type: integer
+        description: ID of the playlist
+      name:
+        type: string
+        description: Name of the playlist
+      songs:
+        type: array
+        description: Song in the playlist
+        items:
+          $ref: '#/definitions/Song'
+    description: Playlist with Song information
+  Song:
+    properties:
+      id:
+        type: integer
+        description: Song ID
+      title:
+        type: string
+        description: Song title
+      artist:
+        type: string
+        description: Song artist
+  error:
+    properties:
+      errorMessage:
+        type: string
+        description: Human readable error message
+      logData:
+        $ref: '#/definitions/error_logData'
+    description: Error Information
+  error_logData:
+    properties:
+      entry:
+        type: integer
+        description: log entry number
+      date:
+        type: string
+        description: log entry date
+    description: data that appears in the log when the error occurs
